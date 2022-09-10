@@ -12,25 +12,31 @@ const resolvers = {
   },
 
   Mutation: {
-    me: async (parent, { username }) => {
+    CreateUser: async (parent, { username }) => {
         return User.findOne({ username }).populate('thoughts');
       },
-    saveBook: async (parent, args) => {
-      return await User.findOneAndUpdate(
-        { _id: context.user._id },
-        {$addToSet: { saveBooks: body}}, 
-        {new: true, runValisators: true}
 
+    saveBook: async (parent, { user, book }) => {
+        console.log(user);
+    try {
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: user._id },
+        { $addToSet: { savedBooks: book } },
+        { new: true, runValidators: true }
       );
+      return updatedUser;
+    } catch (err) {
+      console.log(err);
+      return err
+    }
     },
     deleteBooks: async () => {
         return await User.findOneAndUpdate(
             { _id:context.user._id},
             {$pull: {saveBooks: {bookId: contect.params.bookId}}}, 
             {new: true}
-        )
+        );
     }
-
 }
 }
 
